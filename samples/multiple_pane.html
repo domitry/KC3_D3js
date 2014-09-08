@@ -1,0 +1,120 @@
+<html lang="en">
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script>
+     window.onload = function(){
+       d3.csv("https://dl.dropboxusercontent.com/u/47978121/gdp.csv", function(error, gdp){
+         plot = d3.select(".pane2").append("g")
+                  .attr("transform", "translate(50,10)");
+         plot.append("g").attr("class", "x axis")
+             .attr("transform", "translate(0,500)");
+
+         plot.append("g").attr("class", "y axis")
+             .attr("transform", "translate(0,0)");
+
+         plot.append("g").attr("class", "field")
+             .append("path");
+
+         var clicked = function(country_name){
+           var data = _.sortBy(_.select(gdp, function(row){return row['Country or Area'] == country_name;}), function(row){
+             return parseInt(row['Year']);
+           });
+           var values = _.map(data, function(row){return parseFloat(row['Value']);});
+           var years = _.map(data, function(row){return parseInt(row['Year']);});
+
+           var x = (function(){
+             var range = _.range(0, 500, 500/years.length);
+             range.push(500);
+             return d3.scale.ordinal().domain(years).range(range);
+           })();
+           var y = d3.scale.linear().domain([0,_.max(values)]).range([500, 0]);
+
+           var xAxis = d3.svg.axis().scale(x).orient("bottom");
+           var yAxis = d3.svg.axis().scale(y).orient("left");
+
+           plot.select(".x.axis").call(xAxis);
+           plot.select(".y.axis").call(yAxis);
+
+           plot.select(".x.axis")
+               .selectAll("text")
+               .style("text-anchor", "end")
+               .attr("transform","rotate(-65)");
+
+           d3.selectAll(".axis")
+             .selectAll("path")
+             .style("stroke", "#000")
+             .style("stroke-width",1)
+             .style("fill", "none");
+
+           var line = d3.svg.line().x(function(d){return x(d['Year']);}).y(function(d){return y(d['Value']);});
+
+           plot.select(".field")
+               .select("path")
+               .datum(data);
+
+           plot.select(".field").select("path").datum(data).attr({
+             "d": line,
+             "fill": "none",
+             "stroke": "#000",
+             "stroke-width": 2
+           })
+         }
+
+         clicked("Japan");
+
+         d3.json("https://cdn.rawgit.com/datasets/geo-boundaries-world-110m/master/countries.geojson", function(error, world){
+           var projection = d3.geo.mercator().center([13, 35]).scale(1000);
+           var graticule = d3.geo.graticule();
+           var path = d3.geo.path().projection(projection);
+
+           d3.select(".plot")
+             .append("g")
+             .attr("class", "map")
+             .selectAll("path")
+             .data(world.features)
+             .enter()
+             .append("path")
+             .attr({
+               "d": path,
+               "stroke": "#000",
+               "fill": "#fff"
+             })
+             .on("mouseover", function(){
+               d3.select(this).transition()
+                 .duration(200)
+                 .attr("fill", "#bbb")
+             })
+             .on("mouseout", function(){
+               d3.select(this).transition()
+                 .duration(200)
+                 .attr("fill", "#fff")
+             })
+             .on("click", function(d){
+               clicked(d.properties.name);
+             });
+
+           d3.select(".plot").call(
+             d3.behavior
+               .zoom()
+               .scaleExtent([-100, 100])
+               .on("zoom", function(){
+                 var translate = d3.event.translate;
+                 var scale = d3.event.scale;
+                 d3.select(".map")
+                   .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+               }));
+         });
+       });
+     };
+    </script>
+  </head>
+  <body>
+    <div style="background-color:#eee;width:70%;float:left">
+      <svg class="plot" style="width:100%;height:100%"></svg>
+    </div>
+    <div style="width:30%;float:left">
+      <svg class="pane2" style="width:100%;height:100%"></svg>
+    </div>
+  </body>
+</html>
