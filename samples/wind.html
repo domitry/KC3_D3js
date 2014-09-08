@@ -44,7 +44,7 @@
          d3.csv("https://cdn.rawgit.com/domitry/nyaplot/master/examples/notebook/data/wind.csv", function(error, wind){
            var data = _.map(wind, function(row){
              var point = projection([row.lon, row.lat]);
-             return {x: point[0], y: point[1], dx: 2*parseInt(row.uwnd), dy: 2*parseInt(row.vwnd)};
+             return {x: point[0], y: point[1], dx: 2*parseFloat(row.uwnd), dy: 2*parseFloat(row.vwnd)};
            });
 
            d3.select(".map")
