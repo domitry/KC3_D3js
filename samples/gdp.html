@@ -5,63 +5,61 @@
     <script>
      window.onload = function(){
        d3.json("https://cdn.rawgit.com/datasets/geo-boundaries-world-110m/master/countries.geojson", function(error, world){
-         var projection = d3.geo.mercator().center([13, 35]).scale(1000);
-         var graticule = d3.geo.graticule();
-         var path = d3.geo.path().projection(projection);
+         d3.csv("https://dl.dropboxusercontent.com/u/47978121/gdp.csv", function(error, gdp){
+           var projection = d3.geo.mercator().center([13, 35]).scale(1000);
+           var graticule = d3.geo.graticule();
+           var path = d3.geo.path().projection(projection);
 
-         d3.select(".plot")
-           .append("g")
-           .attr("class", "map")
-           .selectAll("path")
-           .data(world.features)
-           .enter()
-           .append("path")
-           .attr({
-             "d": path,
-             "stroke": "#000",
-             "fill": "none"
-           });
+           var data = _.reduce(_.select(gdp, function(row){
+             return row['Year'] == '2012';
+           }), function(memo, row){
+             memo[row['Country or Area']] = parseFloat(row['Value']);
+             return memo;
+           }, {});
 
-         d3.select(".map")
-           .append("path")
-           .datum(graticule)
-           .attr({
-             "d": path,
-             "stroke": "#fff",
-             "stroke-width":2
-           });
+           var color_scale = (function(){
+             var max = _.max(data, function(v, k){return v;});
+             var min = _.min(data, function(v, k){return v;});
+             return d3.scale.linear().domain([min, max]).range(["#f7fbff", "#08306b"]);
+           })();
 
-         d3.select(".plot").call(d3.behavior
-           .zoom()
-           .scaleExtent([-100, 100])
-           .on("zoom", function(){
-             var translate = d3.event.translate;
-             var scale = d3.event.scale;
-             d3.select(".map")
-               .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
-           }));
-
-         d3.csv("https://cdn.rawgit.com/domitry/nyaplot/master/examples/notebook/data/wind.csv", function(error, wind){
-           var data = _.map(wind, function(row){
-             var point = projection([row.lon, row.lat]);
-             return {x: point[0], y: point[1], dx: 2*parseInt(row.uwnd), dy: 2*parseInt(row.vwnd)};
-           });
+           d3.select(".plot")
+             .append("g")
+             .attr("class", "map")
+             .selectAll("path")
+             .data(world.features)
+             .enter()
+             .append("path")
+             .attr({
+               "d": path,
+               "stroke": "#000",
+               "fill": function(d){
+                 var name = d.properties.sovereignt;
+                 var val = data[name];
+                 return (_.isUndefined(val) ? "#000" : color_scale(val));
+               }
+             });
 
            d3.select(".map")
-             .append("g")
-             .attr("class", "vectors")
-             .selectAll("line")
-             .data(data)
-             .enter()
-             .append("line")
+             .append("path")
+             .datum(graticule)
              .attr({
-               "x1":function(d){return d.x;},
-               "y1":function(d){return d.y;},
-               "x2":function(d){return d.x + d.dx;},
-               "y2":function(d){return d.y + d.dy;},
-               "stroke": "#000",
-               "stroke-width": 1
-             })
+               "d": path,
+               "stroke": "#fff",
+               "stroke-width":2
+             });
+
+           d3.select(".plot").call(
+             d3.behavior
+               .zoom()
+               .scaleExtent([-100, 100])
+               .on("zoom", function(){
+                 var translate = d3.event.translate;
+                 var scale = d3.event.scale;
+                 d3.select(".map")
+                   .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+               }));
+           
          });
        });
      };
