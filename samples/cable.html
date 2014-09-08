@@ -8,7 +8,6 @@
          var projection = d3.geo.mercator().center([13, 35]).scale(1000);
          var graticule = d3.geo.graticule();
          var path = d3.geo.path().projection(projection);
-         var color_scale = d3.scale.category20();
 
          d3.select(".plot")
            .append("g")
@@ -54,7 +53,7 @@
                "d": path,
                "stroke": function(d){
                  if(d.geometry.type == "Point")return "#000";
-                 return color_scale(d.properties.name);
+                 return "#f00";
                },
                "fill": "none"
              });
