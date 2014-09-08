@@ -1,0 +1,71 @@
+<html lang="en">
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script>
+     window.onload = function(){
+       d3.json("https://cdn.rawgit.com/datasets/geo-boundaries-world-110m/master/countries.geojson", function(error, world){
+         var projection = d3.geo.mercator().center([13, 35]).scale(1000);
+         var graticule = d3.geo.graticule();
+         var path = d3.geo.path().projection(projection);
+         var color_scale = d3.scale.category20();
+
+         d3.select(".plot")
+           .append("g")
+           .attr("class", "map")
+           .selectAll("path")
+           .data(world.features)
+           .enter()
+           .append("path")
+           .attr({
+             "d": path,
+             "stroke": "#000",
+             "fill": "none"
+           });
+
+         d3.select(".map")
+           .append("path")
+           .datum(graticule)
+           .attr({
+             "d": path,
+             "stroke": "#fff",
+             "stroke-width":2
+           });
+
+         d3.select(".plot").call(d3.behavior
+           .zoom()
+           .scaleExtent([-100, 100])
+           .on("zoom", function(){
+             var translate = d3.event.translate;
+             var scale = d3.event.scale;
+             d3.select(".map")
+               .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+           }));
+
+         d3.json("https://dl.dropboxusercontent.com/u/47978121/gregs_cable_map.geo.json", function(error, cables){
+           d3.select(".map")
+             .append("g")
+             .attr("class", "cables")
+             .selectAll("path")
+             .data(cables.features)
+             .enter()
+             .append("path")
+             .attr({
+               "d": path,
+               "stroke": function(d){
+                 if(d.geometry.type == "Point")return "#000";
+                 return color_scale(d.properties.name);
+               },
+               "fill": "none"
+             });
+         });
+       });
+     };
+    </script>
+  </head>
+  <body>
+    <div style="background-color:#eee">
+      <svg class="plot" style="width:100%;height:100%"></svg>
+    </div>
+  </body>
+</html>
