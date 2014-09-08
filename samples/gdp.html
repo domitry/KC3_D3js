@@ -11,7 +11,7 @@
            var path = d3.geo.path().projection(projection);
 
            var data = _.reduce(_.select(gdp, function(row){
-             return row['Year'] == '2012';
+             return row['Year'] == '2011';
            }), function(memo, row){
              memo[row['Country or Area']] = parseFloat(row['Value']);
              return memo;
@@ -36,7 +36,7 @@
                "fill": function(d){
                  var name = d.properties.sovereignt;
                  var val = data[name];
-                 return (_.isUndefined(val) ? "#000" : color_scale(val));
+                 return (_.isUndefined(val) ? "#555" : color_scale(val));
                }
              });
 
