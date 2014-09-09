@@ -1,0 +1,80 @@
+<html lang="en">
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <style>
+     .axis path{
+       stroke: #000;
+       stroke-width: 1;
+       fill: none;
+     }
+    </style>
+    <script>
+     window.onload = function(){
+      d3.csv("https://dl.dropboxusercontent.com/u/47978121/iris.csv", function(error, hpi){
+        var data = _.map(hpi, function(row){
+          return {"sl":row['Sepal Length'], "pl":row['Petal Length'], "species": row['Species']};
+        });
+
+        var width = 500, height = 500;
+        var padding = [80, 10];
+
+        // prepare dom node
+        plot = d3.select(".plot").append("g").attr("transform", "translate(" + padding + ")");
+        plot.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")");
+        plot.append("g").attr("class", "y axis").attr("transform", "translate(0,0)");
+        plot.append("g").attr("class", "field").append("path");
+
+        plot.append("text")
+            .text("Sepal Length")
+            .attr("transform", "translate(" + width/2 + "," + (height+70) + ")")
+            .attr("text-anchor", "middle")
+            .style("font-size", 25);
+
+        plot.append("text")
+            .text('Petal Length')
+            .attr("transform", "translate(-60," + height/2 + ") rotate(-90)")
+            .attr("text-anchor", "middle")
+            .style("font-size", 25);
+
+        // scales
+        var x = (function(){
+          var sl = _.map(data, function(row){return row.sl;});
+          return d3.scale.linear().domain([_.max(sl), _.min(sl)]).range([width, 0]);
+        })();
+
+        var y = (function(){
+          var pl = _.map(data, function(row){return row.pl;});
+          return d3.scale.linear().domain([_.max(pl), _.min(pl)]).range([0, height]);
+        })();
+
+        // axis
+        var xAxis = d3.svg.axis().scale(x).orient("bottom");
+        var yAxis = d3.svg.axis().scale(y).orient("left");
+        plot.select(".x.axis").call(xAxis);
+        plot.select(".y.axis").call(yAxis);
+
+        // field
+        var color_scale = d3.scale.category10();
+        d3.select(".field")
+          .selectAll("circle")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr({
+            'cx': function(d){return x(d.sl)},
+            'cy': function(d){return y(d.pl)},
+            'r': 5,
+            'fill': function(d){return color_scale(d.species);}
+          });
+
+      });
+     };
+    </script>
+  </head>
+  <body>
+    <div style="width:100%; height:100%">
+      <svg class="plot" style="width:100%; height:100%"></svg>
+    </div>
+  </body>
+</html>
