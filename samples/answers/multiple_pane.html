@@ -5,16 +5,12 @@
     <script>
      window.onload = function(){
        d3.csv("https://dl.dropboxusercontent.com/u/47978121/gdp.csv", function(error, gdp){
-         plot = d3.select(".pane2").append("g")
-                  .attr("transform", "translate(50,10)");
-         plot.append("g").attr("class", "x axis")
-             .attr("transform", "translate(0,500)");
 
-         plot.append("g").attr("class", "y axis")
-             .attr("transform", "translate(0,0)");
+         plot = d3.select(".pane2").append("g").attr("transform", "translate(50,10)");
+         plot.append("g").attr("class", "x axis").attr("transform", "translate(0,500)");
 
-         plot.append("g").attr("class", "field")
-             .append("path");
+         plot.append("g").attr("class", "y axis").attr("transform", "translate(0,0)");
+         plot.append("g").attr("class", "field").append("path");
 
          var clicked = function(country_name){
            var data = _.sortBy(_.select(gdp, function(row){return row['Country or Area'] == country_name;}), function(row){

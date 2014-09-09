@@ -6,7 +6,7 @@
      window.onload = function(){
        d3.json("https://cdn.rawgit.com/datasets/geo-boundaries-world-110m/master/countries.geojson", function(error, world){
          d3.csv("https://dl.dropboxusercontent.com/u/47978121/gdp.csv", function(error, gdp){
-           var projection = d3.geo.mercator().center([13, 35]).scale(1000);
+           var projection = d3.geo.mercator().center([13, 60.3]).scale(300);
            var graticule = d3.geo.graticule();
            var path = d3.geo.path().projection(projection);
 
@@ -33,6 +33,7 @@
              .attr({
                "d": path,
                "stroke": "#000",
+               "stroke-width": 0.5,
                "fill": function(d){
                  var name = d.properties.sovereignt;
                  var val = data[name];
@@ -46,7 +47,7 @@
              .attr({
                "d": path,
                "stroke": "#fff",
-               "stroke-width":2
+               "stroke-width":0.5
              });
 
            d3.select(".plot").call(

@@ -1,0 +1,64 @@
+<html lang="en">
+  <head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <style>
+     .axis path{
+       stroke: #000;
+       stroke-width: 1;
+       fill: none;
+     }
+    </style>
+    <script>
+     window.onload = function(){
+      d3.csv("https://dl.dropboxusercontent.com/u/47978121/hpi.csv", function(error, hpi){
+        var data = _.map(hpi, function(row){
+          var gdp = row['GDP/capita'].replace(",", "");
+          return {'name':row['Country'], 'hpi': parseFloat(row['Happy Planet Index']), 'gdp': parseInt(gdp)};
+        });
+
+        // prepare dom node
+        plot = d3.select(".plot").append("g").attr("transform", "translate(50,10)");
+        plot.append("g").attr("class", "x axis").attr("transform", "translate(0,500)");
+        plot.append("g").attr("class", "y axis").attr("transform", "translate(0,0)");
+        plot.append("g").attr("class", "field").append("path");
+
+        // scales
+        var x = (function(){
+          var gdp = _.map(data, function(row){return row.gdp;});
+          return d3.scale.linear().domain([_.max(gdp), _.min(gdp)]).range([500, 0]);
+        })();
+
+        var y = (function(){
+          var hpi = _.map(data, function(row){return row.hpi;});
+          return d3.scale.linear().domain([_.max(hpi), _.min(hpi)]).range([0, 500]);
+        })();
+
+        var xAxis = d3.svg.axis().scale(x).orient("bottom");
+        var yAxis = d3.svg.axis().scale(y).orient("left");
+
+        plot.select(".x.axis").call(xAxis);
+        plot.select(".y.axis").call(yAxis);
+
+        d3.select(".field")
+          .selectAll("circle")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr({
+            'cx': function(d){return x(d.gdp)},
+            'cy': function(d){return y(d.hpi)},
+            'r': 5,
+            'fill': "#000"
+          });
+
+      });
+     };
+    </script>
+  </head>
+  <body>
+    <div style="width:100%; height:100%">
+      <svg class="plot" style="width:100%; height:100%"></svg>
+    </div>
+  </body>
+</html>
