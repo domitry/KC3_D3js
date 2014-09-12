@@ -17,11 +17,7 @@
              return memo;
            }, {});
 
-           var color_scale = (function(){
-             var max = _.max(data, function(v, k){return v;});
-             var min = _.min(data, function(v, k){return v;});
-             return d3.scale.linear().domain([min, max]).range(["#f7fbff", "#08306b"]);
-           })();
+           // color: "#f7fbff", "#08306b"
 
            d3.select(".plot")
              .append("g")

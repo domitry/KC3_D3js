@@ -44,8 +44,14 @@
          d3.csv("https://cdn.rawgit.com/domitry/nyaplot/master/examples/notebook/data/wind.csv", function(error, wind){
            var data = _.map(wind, function(row){
              var point = projection([row.lon, row.lat]);
-             return {x: point[0], y: point[1], dx: 2*parseFloat(row.uwnd), dy: 2*parseFloat(row.vwnd)};
+             var abs = Math.sqrt(Math.pow(parseFloat(row.uwnd), 2) + Math.pow(parseFloat(row.vwnd), 2));
+             return {x: point[0], y: point[1], dx: 3*parseFloat(row.uwnd), dy: 3*parseFloat(row.vwnd), abs: abs};
            });
+
+           var color_scale = (function(){
+             var abs = _.map(data, function(row){return row.abs;});
+             return d3.scale.linear().domain([_.min(abs), _.max(abs)]).range(["#fee8c8", "#e34a33"]);
+           })();
 
            d3.select(".map")
              .append("g")
@@ -59,7 +65,7 @@
                "y1":function(d){return d.y;},
                "x2":function(d){return d.x + d.dx;},
                "y2":function(d){return d.y + d.dy;},
-               "stroke": "#000",
+               "stroke": function(d){return color_scale(d.abs);},
                "stroke-width": 1
              })
          });

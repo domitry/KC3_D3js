@@ -25,9 +25,11 @@
 
         // scales
         var x = (function(){
+          return d3.scale.linear().domain([0, 2]).range([10, 500]);
         })();
 
         var y = (function(){
+          return d3.scale.linear().domain([0, 2]).range([10, 500]);
         })();
 
         var xAxis = d3.svg.axis().scale(x).orient("bottom");
