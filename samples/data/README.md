@@ -8,3 +8,5 @@
 </td></tr>
 <tr><td>iris.csv</td><td> - </td><td><a href="https://code.google.com/p/dataminingproject/source/browse/DataMiningApp/datasets/Iris/iris.csv?r=44">Google Code</a></td><td></td></tr>
 </table>
+
+Some datasets are proceeded by Naoki Nishida. (i.e. In wind.csv the data size is reduced. ) They are distributed under the same license as of each data source.
