@@ -28,7 +28,7 @@ See [the website of KC3](http://kc3.me/) to learn more.
 
 </table>
 
-## Image
+## Images
 ![iris](https://dl.dropboxusercontent.com/u/47978121/kc3/iris.png)
 ![gdp](https://dl.dropboxusercontent.com/u/47978121/kc3/gdp.png)
 
